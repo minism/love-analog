@@ -1,12 +1,35 @@
 ---- Generic module objects
 
-local GSIZE = 32
+local GSIZE = 48
 
+--- Global position interface
+Loc = Object:extend()
+
+function Loc:init(x, y)
+    self.x = x or 0
+    self.y = y or 0
+end
+
+function Loc:toLocal(x, y)
+    return x - self.x, y - self.y
+end
+
+function Loc:toGlobal(x, y)
+    return x + self.x, y + self.y
+end
+
+function Loc:push()
+    love.graphics.push()
+    love.graphics.translate(self.x, self.y)
+end
+
+Loc.pop = love.graphics.pop
 
 --- Generic module component
 Component = Object:extend()
 
-function Component:init(label)
+function Component:init(label, p)
+    local p = p or {}
     self.label = label or ''
     self.rect = Rect(GSIZE, GSIZE)
 end
@@ -17,21 +40,28 @@ function Component:draw()
 
     -- Draw label
     love.graphics.setColor(255, 255, 255)
-    love.graphics.setFont(8)
-    love.graphics.printf(self.label, 0, self.rect:getHeight() - 2 ,
+    love.graphics.printf(self.label, 0, self.rect:getHeight() - 4 ,
                          self.rect:getWidth(), 'center')
 end
 
 function Component:gfx() end
-function Component:onClick() end
+
+function Component:mousepressed(x, y, button) 
+    if self.rect:scale(0.6, 'center'):contains(x, y) then 
+        mactive = self
+        return true
+    end
+end
+
+function Component:mousemoved(x, y) end
 
 
 --- One way connection that sends data
 Port = Component:extend()
 
 function Port:init(label, p)
-    Component.init(self, label)
     local p = p or {}
+    Component.init(self, label, p)
     self.inp = p.inp or nil
     self.outp = p.outp or nil
 end
@@ -52,8 +82,8 @@ end
 Knob = Component:extend()
 
 function Knob:init(label, p)
-    Component.init(self, label)
     local p = p or {}
+    Component.init(self, label, p)
     self.val = p.val or 0.0
 end
 
@@ -79,6 +109,7 @@ Module = Object:extend()
 
 function Module:init(label, p)
     local p = p or {}
+    self.L = Loc(p.x, p.y)
     self.label = label or '<noname>'
     self.rect = Rect(0, 0)
     self.ports = p.ports or {}
@@ -101,26 +132,54 @@ function Module:addKnob(knob)
 end
 
 function Module:draw()
-    -- Frame
-    love.graphics.setLineStyle('rough')
-    love.graphics.setColor(255, 255, 255)
-    love.graphics.rectangle('line', self.rect:unpack())
+    self.L:push()
+        -- Frame
+        love.graphics.setLineStyle('rough')
+        love.graphics.setColor(255, 255, 255)
+        if mactive == self then love.graphics.setColor(255, 0, 0) end
+        love.graphics.rectangle('line', self.rect:unpack())
 
-    -- Components
-    love.graphics.push()
+        -- Components
         for i, port in ipairs(self.ports) do
             love.graphics.push()
                 love.graphics.translate((i - 1) * GSIZE, 0)
                 port:draw()
             love.graphics.pop()
         end
-        love.graphics.translate(0, GSIZE + GSIZE / 4)
         for i, knob in ipairs(self.knobs) do
             love.graphics.push()
-                love.graphics.translate((i - 1) * GSIZE, 0)
+                love.graphics.translate((i - 1) * GSIZE, GSIZE + GSIZE / 4)
                 knob:draw()
             love.graphics.pop()
         end
-    love.graphics.pop()
+
+        -- Label
+        love.graphics.printf(self.label, 0, self.rect:getHeight() + 2, 
+                             self.rect:getWidth(), 'center')
+    self.L:pop()
 end
 
+function Module:mousepressed(x, y, button)
+    local lx, ly = self.L:toLocal(x, y)
+    if self.rect:contains(lx, ly) then
+        for i, port in ipairs(self.ports) do
+            local cx, cy = lx - (i - 1) * GSIZE, ly - 0
+            if port:mousepressed(cx, cy, button) then
+                return true
+            end
+        end
+        for i, knob in ipairs(self.knobs) do
+            local cx, cy = lx - (i - 1) * GSIZE, ly - GSIZE - GSIZE / 4
+            if knob:mousepressed(cx, cy, button) then
+                return true
+            end
+        end
+        -- No component caught, move module
+        mactive = self
+        self.px, self.py = lx, ly
+    end
+end
+
+function Module:mousemoved(x, y)
+    self.L = Loc(x - self.px, y - self.py)
+end
