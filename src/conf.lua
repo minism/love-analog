@@ -1,7 +1,7 @@
 function love.conf(t)
     -- Custom settings
     NAME = 'modsynth'
-    VERSION = '0.0.5'
+    VERSION = '0.0.7'
     DEBUG   = true
 
 	-- Love settings

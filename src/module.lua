@@ -1,6 +1,6 @@
 ---- Generic module objects
 
-local GSIZE = 48
+local GSIZE = 52
 local SPACING = GSIZE / 4
 
 --- Generic module component
@@ -41,13 +41,9 @@ Port = Component:extend()
 function Port:init(label, p)
     local p = p or {}
     Component.init(self, label, p)
+    self.signal = p.signal or function(t) return 0 end
     self.r = GSIZE / 4
     self.out = nil
-end
-
---- Empty signal
-function Port.signal(t)
-    return 0
 end
 
 --- Returns absolute position of the center of the port

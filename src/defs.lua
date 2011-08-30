@@ -2,6 +2,7 @@ def = {}
 
 def.MonoOut = require 'mono'
 def.VCO = require 'vco'
+def.LFO = require 'lfo'
 -- def.vca = require 'vca'
 
 ------ Create prototypes for display ------
