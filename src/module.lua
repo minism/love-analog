@@ -1,6 +1,6 @@
 ---- Generic module objects
 
-local GSIZE = 48
+local GSIZE = 32
 local SPACING = GSIZE / 4
 
 --- Generic module component
@@ -19,7 +19,7 @@ function Component:draw()
 
     -- Draw label
     love.graphics.setColor(255, 255, 255)
-    love.graphics.printf(self.label, 0, self.rect:getHeight() - 4 ,
+    love.graphics.printf(self.label, 0, self.rect:getHeight() - 8 ,
                          self.rect:getWidth(), 'center')
 end
 
@@ -65,6 +65,15 @@ end
 
 function Port:mousepressed(x, y)
     if Component.mousepressed(self, x, y) then
+        -- Remove existing connections
+        if self.inp then
+            self.inp.outp = nil
+            self.inp = nil
+        end
+        if self.outp then
+            self.outp.inp = nil
+            self.outp = nil
+        end
         tmpport = self
         return true
     end
@@ -74,8 +83,10 @@ function Port:tryConnect(x, y, port)
     local cx, cy = self:cpos()
     if Rect(cx - self.r / 2, cy - self.r / 2,
             cx + self.r / 2, cy + self.r / 2):contains(x, y) then
-        self.inp = port
-        port.outp = self
+        if self.inp == nil and self.outp == nil then
+            self.inp = port
+            port.outp = self
+        end
     end
 end
 
@@ -171,7 +182,7 @@ function Module:draw()
         end
 
         -- Label
-        love.graphics.printf(self.label, 0, self.rect:getHeight() + 2, 
+        love.graphics.printf(self.label, 0, self.rect:getHeight() - 8, 
                              self.rect:getWidth(), 'center')
     self.SN:pop()
 end
@@ -188,22 +199,29 @@ end
 
 function Module:mousepressed(x, y, button)
     if self.rect:contains(self.SN:toLocal(x, y)) then
-        for i, port in ipairs(self.ports) do
-            if port:mousepressed(x, y, button) then
-                return true
+        if not self.locked then
+            for i, port in ipairs(self.ports) do
+                if port:mousepressed(x, y, button) then
+                    return true
+                end
             end
-        end
-        for i, knob in ipairs(self.knobs) do
-            if knob:mousepressed(x, y, button) then
-                return true
+            for i, knob in ipairs(self.knobs) do
+                if knob:mousepressed(x, y, button) then
+                    return true
+                end
             end
+            -- No component caught, move module
+            mactive = self
         end
-        -- No component caught, move module
-        mactive = self
-        self.px, self.py = self.SN:toLocal(x, y)
+            self.px, self.py = self.SN:toLocal(x, y)
+        return true
     end
 end
 
 function Module:mousemoved(x, y)
-    self.SN.x, self.SN.y = x - self.px, y - self.py
+    if not self.locked then
+        limit = self.ghost and 0 or DRAWER
+        local px = self.px or 0; local py = self.py or 0
+        self.SN.x, self.SN.y = math.max(limit, x - px), math.max(0, y - py)
+    end
 end
