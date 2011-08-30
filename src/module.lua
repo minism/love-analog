@@ -1,6 +1,6 @@
 ---- Generic module objects
 
-local GSIZE = 32
+local GSIZE = 48
 local SPACING = GSIZE / 4
 
 --- Generic module component
@@ -42,8 +42,12 @@ function Port:init(label, p)
     local p = p or {}
     Component.init(self, label, p)
     self.r = GSIZE / 4
-    self.inp = p.inp or nil
-    self.outp = p.outp or nil
+    self.out = nil
+end
+
+--- Empty signal
+function Port.signal(t)
+    return 0
 end
 
 --- Returns absolute position of the center of the port
@@ -57,7 +61,7 @@ function Port:gfx()
     love.graphics.setColor(120, 120, 200)
     love.graphics.setLineWidth(1)
     love.graphics.circle('line', cx, cy, self.r)
-    if self.inp or self.outp then
+    if self.out then
         love.graphics.setColor(150, 150, 150)
         love.graphics.circle('line', cx, cy, 3)
     end
@@ -66,13 +70,9 @@ end
 function Port:mousepressed(x, y)
     if Component.mousepressed(self, x, y) then
         -- Remove existing connections
-        if self.inp then
-            self.inp.outp = nil
-            self.inp = nil
-        end
-        if self.outp then
-            self.outp.inp = nil
-            self.outp = nil
+        if self.out then
+            self.out.out = nil
+            self.out = nil
         end
         tmpport = self
         return true
@@ -83,9 +83,9 @@ function Port:tryConnect(x, y, port)
     local cx, cy = self:cpos()
     if Rect(cx - self.r / 2, cy - self.r / 2,
             cx + self.r / 2, cy + self.r / 2):contains(x, y) then
-        if self.inp == nil and self.outp == nil then
-            self.inp = port
-            port.outp = self
+        if self.out == nil then
+            self.out = port
+            port.out = self
         end
     end
 end
@@ -120,7 +120,7 @@ function Knob:mousepressed(x, y)
 end
 
 function Knob:mousemoved(x, y)
-    local range = -GSIZE * 2
+    local range = -GSIZE * 3
     self.val = (y - self.py) / range + self.pval
     if self.val > 1 then self.val = 1
     elseif self.val < 0 then self.val = 0 end
@@ -137,6 +137,7 @@ function Module:init(label, p)
     self.rect = Rect(0, 0)
     self.ports = p.ports or {}
     self.knobs = p.knobs or {}
+    -- Adjust layout
     self:reflow()
 end
 
@@ -150,14 +151,6 @@ function Module:reflow()
         knob.SN = self.SN:addChild((i - 1) * GSIZE, GSIZE + SPACING)
     end
     self.rect = Rect(cols * GSIZE, rows * (GSIZE + SPACING))
-end
-
-function Module:addPort(port)
-    table.insert(self.ports, port)
-end
-
-function Module:addKnob(knob)
-    table.insert(self.knobs, knob)
 end
 
 function Module:draw()

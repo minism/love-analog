@@ -3,16 +3,18 @@ require 'os'
 require 'leaf'
 
 twoPI = math.pi * 2
+scrw, scrh = love.graphics.getWidth(), love.graphics.getHeight()
 
 -- Namespace imports
 console = leaf.console
+time    = leaf.time
 Object  = leaf.Object
 Rect    = leaf.Rect
 List    = leaf.List
+Queue   = leaf.Queue
 SceneNode = leaf.SceneNode
 
-
--- Root node in scene graph
+-- Globals
 DRAWER = 200
 TRASH = Rect(love.graphics.getWidth() - 150, love.graphics.getHeight() - 150,
              love.graphics.getWidth(), love.graphics.getHeight())
@@ -29,6 +31,9 @@ function love.load()
 end
 
 function love.update(dt)
+    time.update(dt)
+
+    -- Detect mouse dragging
     if mactive then
         mactive:mousemoved(love.mouse.getPosition())
     end
@@ -38,6 +43,10 @@ function love.update(dt)
 end
 
 function love.draw()
+    -- Draw audio load
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.print('Active voices: ' .. love.audio.getNumSources(), scrw - 150, 25)
+
     -- Draw trash
     love.graphics.setColor(100, 0, 0)
     love.graphics.setLineWidth(1)
@@ -58,9 +67,9 @@ function love.draw()
         mod:draw()
         for _, port in ipairs(mod.ports) do
             -- Draw connecting wire to output port
-            if port.outp then
+            if port.out then
                 local sx, sy = port:cpos()
-                local dx, dy = port.outp:cpos()
+                local dx, dy = port.out:cpos()
                 love.graphics.setColor(0, 255, 0)
                 love.graphics.setLineWidth(2)
                 love.graphics.line(sx, sy, dx, dy)
@@ -91,6 +100,7 @@ function love.mousepressed(x, y, button)
     for _, proto in pairs(protos) do
         if proto:mousepressed(x, y, button) then 
             mplacing = proto.def:new()
+            mplacing.px, mplacing.py = proto.SN:toLocal(x, y)
             mplacing.ghost = true
             return true
         end
@@ -109,7 +119,7 @@ function love.mousereleased(x, y, button)
     if mactive and TRASH:contains(x, y) then
         --
     end
-    if mplacing and x > DRAWER then
+    if mplacing and x - mplacing.px > DRAWER then
         mplacing.ghost = false
         modules:insert(mplacing)
     end

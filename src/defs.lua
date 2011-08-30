@@ -1,8 +1,8 @@
 def = {}
 
-def.spk = require 'speaker'
-def.vco = require 'vco'
-def.vca = require 'vca'
+def.MonoOut = require 'mono'
+def.VCO = require 'vco'
+-- def.vca = require 'vca'
 
 ------ Create prototypes for display ------
 protos = {}
