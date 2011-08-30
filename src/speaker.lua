@@ -1,9 +1,10 @@
---- Speaker
-def.Speaker = Module:extend()
+local Speaker = Module:extend()
 
-function def.Speaker:init()
-    Module.init(self, 'Speaker', {
+function Speaker:init()
+    Module.init(self, 'Spkr', {
         ports = { Port('In') },
         knobs = { Knob('Vol') }
     })
 end
+
+return Speaker

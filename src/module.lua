@@ -96,7 +96,7 @@ Knob = Component:extend()
 function Knob:init(label, p)
     local p = p or {}
     Component.init(self, label, p)
-    self.val = p.val or 0.0
+    self.val = p.val or 0.5
 end
 
 function Knob:gfx()
@@ -182,7 +182,7 @@ function Module:draw()
         end
 
         -- Label
-        love.graphics.printf(self.label, 0, self.rect:getHeight() - 8, 
+        love.graphics.printf(self.label, 0, self.rect:getHeight(), 
                              self.rect:getWidth(), 'center')
     self.SN:pop()
 end

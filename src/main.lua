@@ -17,6 +17,7 @@ DRAWER = 200
 TRASH = Rect(love.graphics.getWidth() - 150, love.graphics.getHeight() - 150,
              love.graphics.getWidth(), love.graphics.getHeight())
 rootSN  = SceneNode()
+
 require 'module'
 require 'defs'
 

@@ -1,11 +1,11 @@
 function love.conf(t)
     -- Custom settings
-    NAME = 'modular-sim'
-    VERSION = '0.0.3'
+    NAME = 'modsynth'
+    VERSION = '0.0.5'
     DEBUG   = true
 
 	-- Love settings
-	t.title = "Modular Synth Simulator" 		
+	t.title = "Modular Synthesizer Designer & Simulator" 		
 	t.author = "Josh Bothun"
 	t.identity = nil            -- The name of the save directory (string)
 	t.version = 0.7             -- The LÖVE version this game was made for (number)
