@@ -1,5 +1,5 @@
 local RATE      = 44100
-local BUFSIZE   = RATE * 10
+local BUFSIZE   = RATE
 local BITS      = 16
 local CHANNELS  = 1
 

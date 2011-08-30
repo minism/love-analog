@@ -1,7 +1,7 @@
 local LFO = Module:extend()
 
 function LFO:init(freqRange, phaseRange)
-    self.freqlow, self.freqhigh = 0.1, 2
+    self.freqlow, self.freqhigh = 0.1, 60
     local freqKnob = Knob('Freq')
     local ampKnob = Knob('Amp')
     local cvFreq = Port('CV')

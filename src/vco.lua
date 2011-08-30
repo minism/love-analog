@@ -1,7 +1,7 @@
 local VCO = Module:extend()
 
 function VCO:init(freqRange, phaseRange)
-    self.freqlow, self.freqhigh = 220, 880
+    self.freqlow, self.freqhigh = 60, 3000
     local freqKnob = Knob('Freq')
     local phaseKnob = Knob('Phase')
     local cvFreq = Port('CV')
@@ -14,10 +14,9 @@ function VCO:init(freqRange, phaseRange)
         end
     local out = Port('Out', {
         signal = function (t)
-            local freq = math.max(0, self.freqlow * (self.freqhigh / self.freqlow) ^ 
-                                     (freqKnob.val + cvFreq.signal(t)))
-            local phase = phaseKnob.val * math.pi * 2 + cvPhase.signal(t)
-            return math.sin(t * freq * twoPI + phase)
+            local freq = self.freqlow * (self.freqhigh / self.freqlow) ^ freqKnob.val
+            local phase = phaseKnob.val * math.pi * 2
+            return math.sin(t * freq * twoPI + freq * cvFreq.signal(t) + phase)
         end
     })
     Module.init(self, 'VCO', {
