@@ -19,6 +19,7 @@ function LFO:init(freqRange, phaseRange)
             return math.sin(t * freq * twoPI) * amp
         end
     })
+
     Module.init(self, 'LFO', {
         ports = {cvFreq, cvAmp, out},
         knobs = {freqKnob, ampKnob}

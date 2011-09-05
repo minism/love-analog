@@ -12,13 +12,18 @@ function VCO:init(freqRange, phaseRange)
         cvPhase.signal = function (t)
             return cvPhase.out and cvPhase.out.signal(t) or 0
         end
+    local test = function(t)
+        local val = t % 1
+        return 1
+    end
     local out = Port('Out', {
         signal = function (t)
-            local freq = self.freqlow * (self.freqhigh / self.freqlow) ^ freqKnob.val
-            local phase = phaseKnob.val * math.pi * 2
-            return math.sin(t * freq * twoPI + freq * cvFreq.signal(t) + phase)
+            local freq = (self.freqlow * (self.freqhigh / self.freqlow) ^ freqKnob.val) + cvFreq.signal(t)
+            local phase = (phaseKnob.val * math.pi * 2) + cvPhase.signal(t) * twoPI
+            return math.sin(t * freq * twoPI + phase)
         end
     })
+
     Module.init(self, 'VCO', {
         ports = {cvFreq, cvPhase, out},
         knobs = {freqKnob, phaseKnob}

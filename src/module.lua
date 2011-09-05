@@ -1,6 +1,6 @@
 ---- Generic module objects
 
-local GSIZE = 52
+local GSIZE = 36
 local SPACING = GSIZE / 4
 
 --- Generic module component

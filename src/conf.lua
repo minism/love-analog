@@ -1,7 +1,7 @@
 function love.conf(t)
     -- Custom settings
     NAME = 'modsynth'
-    VERSION = '0.0.7'
+    VERSION = '0.0.8'
     DEBUG   = true
 
 	-- Love settings
@@ -9,9 +9,9 @@ function love.conf(t)
 	t.author = "Josh Bothun"
 	t.identity = nil            -- The name of the save directory (string)
 	t.version = 0.7             -- The LÖVE version this game was made for (number)
-	t.console = false           -- Attach a console (boolean, Windows only)
-	t.screen.width = 1024       -- The window width (number)
-	t.screen.height = 768	    -- The window height (number)
+	t.console = true           -- Attach a console (boolean, Windows only)
+	t.screen.width = 1280       -- The window width (number)
+	t.screen.height = 800	    -- The window height (number)
 	t.screen.fullscreen = false -- Enable fullscreen (boolean)
 	t.screen.vsync = false      -- Enable vertical sync (boolean)
 	t.screen.fsaa = 0           -- The number of FSAA-buffers (number)
